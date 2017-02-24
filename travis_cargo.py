@@ -134,7 +134,18 @@ def doc_upload(version, manifest, args):
         # only load the token when we're sure we're uploading (travis
         # won't decrypt secret keys for PRs, so loading this with the
         # other vars causes problems with tests)
-        token = os.environ['GH_TOKEN']
+        try:
+            token = os.environ['GH_TOKEN']
+        except Exception, e:
+            print('Missing environment variable "GH_TOKEN"!')
+            print('Note: the github token belongs to the -env: -secure: ... within your .travis.yml file')
+            print('Maybe you missed that, or maybe you generated a token with a different environment variable name?')
+            print('Here are all the environment variables available:')
+            for k,v in keys(os.environ):
+                print(k)
+            print("This is the exception that was thrown:")
+            print repr(e)
+        
 
         commit = run_output('git', 'rev-parse', '--short', 'HEAD').strip()
         msg = 'Documentation for %s@%s' % (repo, commit)
